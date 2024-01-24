@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/auth/login", "/auth/general/join", "/auth/boss/join").permitAll()
+                        .requestMatchers("/auth/login", "/auth/general/join", "/auth/boss/join", "auth/login/kakao").permitAll()
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -9,6 +9,10 @@ import GDSC.gamzamap.Jwt.JwtTokenProvider;
 import GDSC.gamzamap.Repository.BossRepository;
 import GDSC.gamzamap.Repository.MemberRepository;
 import GDSC.gamzamap.Util.RandomNicknameGenerator;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.ibm.icu.text.Transliterator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +23,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,10 +50,25 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtTokenDto login(String email, String password) {
-        //1.email로 사용자 정보 조회
+    public JwtTokenDto login(String email) {
+        // 1. email로 사용자 정보 조회
         Member member = memberRepository.findByEmail(email).orElse(null);
+        // 2. Authentication 객체 생성
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, member.getPassword());
+        // 3. 실제 검증. authenticate() 메서드를 통해 요청된 Member 에 대한 검증 진행
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        // 4. 인증 정보를 기반으로 JWT 토큰 생성
+        JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(authentication);
+        // 5. refreshToken 저장
+        member.setRefreshToken(jwtTokenDto.getRefreshToken());
 
+        return jwtTokenDto;
+    }
+
+    @Transactional
+    public JwtTokenDto jwtlogin(String email, String password){
+        // 1. email로 사용자 정보 조회
+        Member member = memberRepository.findByEmail(email).orElse(null);
         if (member == null) {
             log.info("이메일이 없습니다.");
             throw new UsernameNotFoundException("이메일이 없습니다.");
@@ -57,16 +82,82 @@ public class AuthService {
             throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
 
-        // 3. Authentication 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, member.getPassword());
-        // 4. 실제 검증. authenticate() 메서드를 통해 요청된 Member 에 대한 검증 진행
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        // 5. 인증 정보를 기반으로 JWT 토큰 생성
-        JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(authentication);
-        // 6. refreshToken 저장
-        member.setRefreshToken(jwtTokenDto.getRefreshToken());
+        return login(email);
+    }
 
-        return jwtTokenDto;
+    @Transactional
+    public HashMap<String, Object> getUserInfo(String accessToken){
+        HashMap<String, Object> userInfo = new HashMap<>();
+        String postURL = "https://kapi.kakao.com/v2/user/me";
+        try {
+            URL url = new URL(postURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+            int responseCode = conn.getResponseCode();
+            log.info("responseCode : " + responseCode);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line = "";
+            StringBuilder result = new StringBuilder();
+
+            while ((line = br.readLine()) != null) {
+                result.append(line);
+            }
+            log.info("response body : " + result);
+
+            JsonElement element = JsonParser.parseString(result.toString());
+            JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
+            JsonObject kakaoAccount = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
+            String nickname = properties.getAsJsonObject().get("nickname").getAsString();
+            log.info("닉네임은 잘됩니다");
+            //String email = kakaoAccount.getAsJsonObject().get("email").getAsString();
+            //log.info("이메일도 잘됩니다.");
+
+
+            userInfo.put("nickname", nickname);
+            //userInfo.put("email", email);
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+        log.info("리턴~");
+        return userInfo;
+    }
+    @Transactional
+    public JwtTokenDto kakaologin(String nickname) {
+        String englishNickname = convertToEnglish(nickname); // 한글을 영어로 변환
+        log.info("영어 변환: "+englishNickname);
+        String email = englishNickname+"@gamza.com";
+        String password = englishNickname+generateRandomNum();
+        log.info("이메일: {}, 비번: {}", email, password);
+
+        // email로 사용자 정보 조회
+        Member member = memberRepository.findByEmail(email).orElse(null);
+
+        if (member == null) {
+            log.info("이메일이 없습니다. 가입을 진행합니다.");
+            // 새로운 JoinDto 생성
+            JoinDto joinDto = new JoinDto();
+            joinDto.setEmail(email);
+            joinDto.setPassword(password);
+            // 회원가입
+            join(joinDto);
+        }
+        return login(email);
+    }
+
+    //한글 영어로 변환
+    private String convertToEnglish(String koreanText) {
+        Transliterator transliterator = Transliterator.getInstance("Hangul-Latin");
+        return transliterator.transliterate(koreanText);
+    }
+
+    //password 뒤 랜덤 숫자 생성
+    private String generateRandomNum() {
+        RandomNicknameGenerator nicknameGenerator = new RandomNicknameGenerator();
+        return nicknameGenerator.generateRandomNum();
     }
 
     @Transactional

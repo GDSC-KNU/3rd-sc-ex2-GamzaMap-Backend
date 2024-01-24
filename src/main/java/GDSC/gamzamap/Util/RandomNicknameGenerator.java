@@ -14,4 +14,9 @@ public class RandomNicknameGenerator {
         int randomNumber = random.nextInt(100) + 1;
         return PREDEFINED_NICKNAMES[randomIndex] + randomNumber;
     }
+
+    public String generateRandomNum(){
+        int randomNumber = random.nextInt(10000) +1 ;
+        return Integer.toString(randomNumber);
+    }
 }
