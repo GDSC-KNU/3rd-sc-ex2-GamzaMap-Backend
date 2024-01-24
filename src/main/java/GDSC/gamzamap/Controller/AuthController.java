@@ -38,10 +38,12 @@ public class AuthController {
     //Kakao 소셜 로그인
     @PostMapping("/login/kakao")
     public JwtTokenDto kakaoLogin(@RequestBody Map<String, String> requestBody){
-        // 파싱하여 accessToken 저장하기
-        String accessToken = requestBody.get("accessToken");
-        log.info("kakao 엑세스 토큰: {}", accessToken);
-        // 사용자 조회하기
+        // 파싱하여 code 저장하기
+        String code = requestBody.get("code");
+        log.info("kakao 인증코드: {}", code);
+        // code 이용하여 accessToken 발급 받기
+        String accessToken = authService.getKakaoAccessToken(code);
+        // accessToken 이용하여 사용자 조회하기
         HashMap<String, Object> userInfo = authService.getUserInfo(accessToken);
         log.info("kakao 사용자 정보: {}", userInfo);
         //userInfo에서 nickname 꺼내오기
