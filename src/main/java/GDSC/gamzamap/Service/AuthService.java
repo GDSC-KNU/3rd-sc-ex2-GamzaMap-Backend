@@ -87,29 +87,30 @@ public class AuthService {
     @Transactional
     public String getKakaoAccessToken(String code){
         String accessToken = "";
-        String refreshToken = "";
         String requestURL = "https://kauth.kakao.com/oauth/token";
+        String RestApiKey = "b8201d590e870a0295523da6db288aee";
+        String RedirectUri = "http://localhost:8080/auth/login/kakao";
 
         try {
             URL url = new URL(requestURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("POST");
-            // setDoOutput()은 OutputStream으로 POST 데이터를 넘겨 주겠다는 옵션이다.
-            // POST 요청을 수행하려면 setDoOutput()을 true로 설정한다.
+            // setDoOutput()은 OutputStream으로 POST 데이터를 넘겨 주겠다는 옵션
+            // POST 요청을 수행하려면 setDoOutput()을 true로 설정
             conn.setDoOutput(true);
 
             // POST 요청에서 필요한 파라미터를 OutputStream을 통해 전송
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
             String sb = "grant_type=authorization_code" +
-                    "&client_id=b8201d590e870a0295523da6db288aee" + // REST_API_KEY
-                    "&redirect_uri=http://localhost:8080/auth/login/kakao" + // REDIRECT_URI
+                    "&client_id=" + RestApiKey + // REST_API_KEY
+                    "&redirect_uri=" + RedirectUri + // REDIRECT_URI
                     "&code=" + code;
             bufferedWriter.write(sb);
             bufferedWriter.flush();
 
             int responseCode = conn.getResponseCode();
-            System.out.println("responseCode : " + responseCode);
+            log.info("responseCode : " + responseCode);
 
             // 요청을 통해 얻은 데이터를 InputStreamReader을 통해 읽어 오기
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -119,15 +120,13 @@ public class AuthService {
             while ((line = bufferedReader.readLine()) != null) {
                 result.append(line);
             }
-            System.out.println("response body : " + result);
+            log.info("response body : " + result);
 
             JsonElement element = JsonParser.parseString(result.toString());
 
             accessToken = element.getAsJsonObject().get("access_token").getAsString();
-            refreshToken = element.getAsJsonObject().get("refresh_token").getAsString();
 
-            System.out.println("accessToken : " + accessToken);
-            System.out.println("refreshToken : " + refreshToken);
+            log.info("accessToken : " + accessToken);
 
             bufferedReader.close();
             bufferedWriter.close();
@@ -230,6 +229,9 @@ public class AuthService {
 
         // 랜덤 닉네임 생성
         String randomNickname = generateRandomNickname();
+        while (memberRepository.existsByNickname(randomNickname)){
+            randomNickname = generateRandomNickname();
+        }
         joinDto.setNickname(randomNickname);
 
         log.info("회원가입 비밀번호: "+encodedPassword + ", 닉네임: "+randomNickname);
