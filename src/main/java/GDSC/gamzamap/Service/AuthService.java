@@ -182,14 +182,15 @@ public class AuthService {
         String englishNickname = convertToEnglish(nickname); // 한글을 영어로 변환
         log.info("영어 변환: "+englishNickname);
         String email = englishNickname+"@gamza.com";
-        String password = englishNickname+"!"+generateRandomNum();
-        log.info("이메일: {}, 비번: {}", email, password);
+        log.info("이메일: {}", email);
 
         // email로 사용자 정보 조회
         Member member = memberRepository.findByEmail(email).orElse(null);
 
         if (member == null) {
             log.info("이메일이 없습니다. 가입을 진행합니다.");
+            String password = englishNickname+"!"+generateRandomNum();
+            log.info("비번: "+password);
             // 새로운 JoinDto 생성
             JoinDto joinDto = new JoinDto();
             joinDto.setEmail(email);

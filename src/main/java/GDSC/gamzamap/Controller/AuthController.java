@@ -2,16 +2,12 @@ package GDSC.gamzamap.Controller;
 
 import GDSC.gamzamap.Dto.*;
 import GDSC.gamzamap.Service.AuthService;
-import com.ibm.icu.text.Transliterator;
-import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.Normalizer;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
