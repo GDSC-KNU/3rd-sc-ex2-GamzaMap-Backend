@@ -12,7 +12,6 @@ import GDSC.gamzamap.Util.RandomNicknameGenerator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ibm.icu.text.Transliterator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -162,14 +161,13 @@ public class AuthService {
             JsonElement element = JsonParser.parseString(result.toString());
             JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
             JsonObject kakaoAccount = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
-            String nickname = properties.getAsJsonObject().get("nickname").getAsString();
-            log.info("닉네임은 잘됩니다");
-            //String email = kakaoAccount.getAsJsonObject().get("email").getAsString();
-            //log.info("이메일도 잘됩니다.");
+            //String nickname = properties.getAsJsonObject().get("nickname").getAsString();
+            //log.info("닉네임은 잘됩니다");
+            String email = kakaoAccount.getAsJsonObject().get("email").getAsString();
+            log.info("이메일도 잘됩니다.");
 
-
-            userInfo.put("nickname", nickname);
-            //userInfo.put("email", email);
+            //userInfo.put("nickname", nickname);
+            userInfo.put("email", email);
 
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -178,18 +176,13 @@ public class AuthService {
         return userInfo;
     }
     @Transactional
-    public JwtTokenDto kakaologin(String nickname) {
-        String englishNickname = convertToEnglish(nickname); // 한글을 영어로 변환
-        log.info("영어 변환: "+englishNickname);
-        String email = englishNickname+"@gamza.com";
-        log.info("이메일: {}", email);
-
+    public JwtTokenDto kakaologin(String email) {
         // email로 사용자 정보 조회
         Member member = memberRepository.findByEmail(email).orElse(null);
 
         if (member == null) {
             log.info("이메일이 없습니다. 가입을 진행합니다.");
-            String password = englishNickname+"!"+generateRandomNum();
+            String password = email.substring(0,10)+"!"+generateRandomNum();
             log.info("비번: "+password);
             // 새로운 JoinDto 생성
             JoinDto joinDto = new JoinDto();
@@ -199,12 +192,6 @@ public class AuthService {
             join(joinDto);
         }
         return login(email);
-    }
-
-    //한글 영어로 변환
-    private String convertToEnglish(String koreanText) {
-        Transliterator transliterator = Transliterator.getInstance("Hangul-Latin");
-        return transliterator.transliterate(koreanText);
     }
 
     //password 뒤 랜덤 숫자 생성

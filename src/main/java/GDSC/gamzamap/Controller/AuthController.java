@@ -42,10 +42,10 @@ public class AuthController {
         // accessToken 이용하여 사용자 조회하기
         HashMap<String, Object> userInfo = authService.getUserInfo(accessToken);
         log.info("kakao 사용자 정보: {}", userInfo);
-        //userInfo에서 nickname 꺼내오기
-        String nickname = (String)userInfo.get("nickname");
+        //userInfo에서 email 꺼내오기
+        String email = (String)userInfo.get("email");
 
-        return authService.kakaologin(nickname);
+        return authService.kakaologin(email);
     }
 
     @PostMapping("/general/join")
