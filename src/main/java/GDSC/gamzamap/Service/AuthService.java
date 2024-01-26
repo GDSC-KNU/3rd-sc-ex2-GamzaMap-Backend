@@ -13,6 +13,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Parameter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -136,6 +139,7 @@ public class AuthService {
         return accessToken;
     }
 
+
     @Transactional
     public HashMap<String, Object> getUserInfo(String accessToken){
         HashMap<String, Object> userInfo = new HashMap<>();
@@ -175,6 +179,8 @@ public class AuthService {
         log.info("리턴~");
         return userInfo;
     }
+
+
     @Transactional
     public JwtTokenDto kakaologin(String email) {
         // email로 사용자 정보 조회
@@ -194,11 +200,13 @@ public class AuthService {
         return login(email);
     }
 
+
     //password 뒤 랜덤 숫자 생성
     private String generateRandomNum() {
         RandomNicknameGenerator nicknameGenerator = new RandomNicknameGenerator();
         return nicknameGenerator.generateRandomNum();
     }
+
 
     @Transactional
     public MemberDto join(JoinDto joinDto){
@@ -227,9 +235,24 @@ public class AuthService {
         return MemberDto.toDto(memberRepository.save(joinDto.toEntity()));
     }
 
+
     private String generateRandomNickname() {
         RandomNicknameGenerator nicknameGenerator = new RandomNicknameGenerator();
         return nicknameGenerator.generateRandomNickname();
+    }
+
+
+    @Transactional
+    public ResponseEntity<HttpStatus> logout(String email){
+        log.info("넘겨준느 이메일: "+email);
+        Member member = memberRepository.findByEmail(email).orElse(null);
+        log.info("찾았습니다~");
+        log.info(member.getRefreshToken());
+        member.setRefreshToken(null);
+        log.info("null 세팅 완료");
+        memberRepository.save(member);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

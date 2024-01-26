@@ -4,7 +4,10 @@ import GDSC.gamzamap.Dto.*;
 import GDSC.gamzamap.Service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -54,6 +57,18 @@ public class AuthController {
         log.info("회원가입 성공");
         return ResponseEntity.ok(savedMemberDto);
     }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<HttpStatus> logout(@RequestBody Map<String, String> requestBody){
+        String email = requestBody.get("email");
+        authService.logout(email);
+        log.info("로그아웃 되었습니다.");
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
 
     @PostMapping("/boss/join")
     public ResponseEntity<BossDto> bossjoin(@RequestBody BossDto bossDto){

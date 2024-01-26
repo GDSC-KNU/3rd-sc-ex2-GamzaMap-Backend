@@ -1,4 +1,4 @@
-package GDSC.gamzamap.Security;
+package GDSC.gamzamap.Config;
 
 import GDSC.gamzamap.Jwt.JwtAuthenticationFilter;
 import GDSC.gamzamap.Jwt.JwtTokenProvider;
@@ -33,7 +33,8 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/auth/login", "/auth/general/join", "/auth/boss/join", "auth/login/kakao").permitAll()
+                        .requestMatchers("/auth/login", "/auth/general/join", "/auth/boss/join", "auth/login/kakao",
+                                            "/auth/logout").permitAll()
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated()
                 )
