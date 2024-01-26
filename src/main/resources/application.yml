@@ -1,0 +1,21 @@
+spring:
+
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+
+jwt:
+  secret: 3a696b633a22fab4f16485961e65fd6bd91d7a708faa4bbca918afefed0818e0
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
