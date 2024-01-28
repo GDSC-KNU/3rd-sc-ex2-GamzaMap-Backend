@@ -1,21 +1,30 @@
 spring:
-
-  h2:
-    console:
-      enabled: true
-
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/Gamza?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: gamza
+    password: gamza@
+
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      use-new-id-generator-mappings: false
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      dialect: org.hibernate.dialect.MySQL8InnoDBDialect
+
+    logging:
+      level:
+        org.hibernate.SQL: debug
 
 
 jwt:
   secret: 3a696b633a22fab4f16485961e65fd6bd91d7a708faa4bbca918afefed0818e0
 
 
-logging:
-  level:
-    org.springframework.security: DEBUG
+
 
