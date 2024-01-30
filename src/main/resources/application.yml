@@ -25,6 +25,10 @@ spring:
 jwt:
   secret: 3a696b633a22fab4f16485961e65fd6bd91d7a708faa4bbca918afefed0818e0
 
+kakao:
+  restApiKey: b8201d590e870a0295523da6db288aee
+  redirectURI: http://localhost:8080/auth/login/kakao
+
 
 
 

@@ -12,7 +12,11 @@ import GDSC.gamzamap.Util.RandomNicknameGenerator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -40,6 +44,12 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final BossRepository bossRepository;
+
+    @Value("${kakao.restApiKey}")
+    private String RestApiKey;
+
+    @Value("${kakao.redirectURI}")
+    private String RedirectUri;
 
     public AuthService(MemberRepository memberRepository, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, BossRepository bossRepository) {
         this.memberRepository = memberRepository;
@@ -103,8 +113,6 @@ public class AuthService {
     public String getKakaoAccessToken(String code){
         String accessToken = "";
         String requestURL = "https://kauth.kakao.com/oauth/token";
-        String RestApiKey = "b8201d590e870a0295523da6db288aee";
-        String RedirectUri = "http://localhost:8080/auth/login/kakao";
 
         try {
             URL url = new URL(requestURL);

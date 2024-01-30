@@ -28,7 +28,8 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         String requestURI = httpRequest.getRequestURI();
 
         if ("/auth/general/join".equals(requestURI) || "/auth/login".equals(requestURI)
-                || "/auth/refresh".equals(requestURI) || "/auth/logout".equals(requestURI)){
+                || "/auth/refresh".equals(requestURI) || "/auth/logout".equals(requestURI)
+                || "/auth/login/kakao".equals(requestURI)){
             log.info("바로 통과하십쇼");
             chain.doFilter(request,response);
             return;

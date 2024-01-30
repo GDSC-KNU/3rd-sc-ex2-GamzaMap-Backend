@@ -1,8 +1,6 @@
 package GDSC.gamzamap.Jwt;
 
 import GDSC.gamzamap.Dto.JwtTokenDto;
-import GDSC.gamzamap.Entity.Member;
-import GDSC.gamzamap.Repository.MemberRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -122,17 +120,13 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    public boolean isAccessTokenValid(String accessToken) {
-        return validateToken(accessToken);
-    }
-
     // 토큰 정보를 검증하는 메서드
-    public boolean validateToken(String token) {
+    public boolean validateToken(String accessToken) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseClaimsJws(accessToken);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
