@@ -24,24 +24,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
-        // enable h2-console
-        httpSecurity
-                .headers(headers ->
-                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                );
         return httpSecurity.httpBasic().disable().csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/auth/login", "/auth/general/join", "/auth/boss/join", "auth/login/kakao",
-                                            "/auth/logout").permitAll()
-                        .requestMatchers(PathRequest.toH2Console()).permitAll()
+                        .requestMatchers("/auth/login", "auth/general/join", "/auth/boss/join", "auth/login/kakao",
+                                            "/auth/logout", "/auth/refresh").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new
                         JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class).build();
-
-
     }
     @Bean
     public PasswordEncoder passwordEncoder(){

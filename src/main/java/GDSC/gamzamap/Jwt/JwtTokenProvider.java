@@ -1,6 +1,8 @@
 package GDSC.gamzamap.Jwt;
 
 import GDSC.gamzamap.Dto.JwtTokenDto;
+import GDSC.gamzamap.Entity.Member;
+import GDSC.gamzamap.Repository.MemberRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -32,12 +34,13 @@ public class JwtTokenProvider {
     }
 
     public JwtTokenDto generateToken(Authentication authentication){
+        // 최초 발급시
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
         long now = (new Date()).getTime();
 
-        Date accessTokenExpiresIn = new Date(now + 86400000);
+        Date accessTokenExpiresIn = new Date(now + 2*60*1000);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -46,7 +49,7 @@ public class JwtTokenProvider {
                 .compact();
 
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 86400000))
+                .setExpiration(new Date(now + 5*60*1000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -57,9 +60,52 @@ public class JwtTokenProvider {
                 .build();
     }
 
+    public JwtTokenDto accessTokenByrefreshToken(String refreshToken, String sub, String auth) {
+        // refreshToken으로 accessToken 재발급
+        Claims claims = parseClaims(refreshToken);
+
+        if (claims == null) {
+            log.info("유효하지 않은 리프레시토큰");
+            throw new RuntimeException("Invalid Refresh Token");
+        }
+
+        // refreshToken의 만료일시 확인
+        Date expirationDate = claims.getExpiration();
+        Date now = new Date();
+
+        // refreshToken이 만료되었는지 확인
+        if (expirationDate.before(now)) {
+            log.info("refreshToken 만료~");
+            throw new RuntimeException("Refresh Token Expired");
+        }
+
+        // refreshToken이 유효하면 새로운 accessToken 발급
+        String newAccessToken = generateAccessToken(sub, auth);
+
+        return JwtTokenDto.builder()
+                .grantType("Bearer")
+                .accessToken(newAccessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    private String generateAccessToken(String sub, String auth) {
+        // 새로운 accessToken 발급받는 로직
+        long now = (new Date()).getTime();
+
+        Date accessTokenExpiresIn = new Date(now + 2*60*1000);
+        return Jwts.builder()
+                .setSubject(sub)
+                .claim("auth", auth)  // 권한 정보를 설정
+                .setExpiration(accessTokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public Authentication getAuthentication(String accessToken) {
         // Jwt 토큰 복호화
         Claims claims = parseClaims(accessToken);
+        log.info("claims:ㅁㅁㅁ "+claims);
 
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
@@ -74,6 +120,10 @@ public class JwtTokenProvider {
         // UserDetails: interface, User: UserDetails를 구현한 class
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+    }
+
+    public boolean isAccessTokenValid(String accessToken) {
+        return validateToken(accessToken);
     }
 
     // 토큰 정보를 검증하는 메서드
@@ -107,4 +157,6 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
+
+
 }

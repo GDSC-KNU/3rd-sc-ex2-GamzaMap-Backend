@@ -58,17 +58,23 @@ public class AuthController {
         return ResponseEntity.ok(savedMemberDto);
     }
 
+    @PostMapping("/refresh")
+    public String accessTokenByRefreshToken(@RequestBody Map<String, String> requestBody) {
+        String refreshToken = requestBody.get("refreshToken");
+        JwtTokenDto newAccessTokenDto = authService.accessTokenByrefreshToken(refreshToken);
+        log.info("새로운 accessToken: "+newAccessTokenDto.getAccessToken());
+
+        return newAccessTokenDto.getAccessToken();
+    }
 
     @PostMapping("/logout")
     public ResponseEntity<HttpStatus> logout(@RequestBody Map<String, String> requestBody){
-        String email = requestBody.get("email");
-        authService.logout(email);
+        String refreshToken = requestBody.get("refreshToken");
+        authService.logout(refreshToken);
         log.info("로그아웃 되었습니다.");
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
 
     @PostMapping("/boss/join")
     public ResponseEntity<BossDto> bossjoin(@RequestBody BossDto bossDto){

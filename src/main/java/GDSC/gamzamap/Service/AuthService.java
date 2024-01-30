@@ -13,7 +13,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -84,6 +83,20 @@ public class AuthService {
         }
 
         return login(email);
+    }
+
+    @Transactional
+    public JwtTokenDto accessTokenByrefreshToken(String refreshToken) {
+        Member member = memberRepository.findByRefreshToken(refreshToken).orElse(null);
+        String sub = member.getEmail();
+        String auth = member.getRole();
+
+        JwtTokenDto newAccessTokenDto = jwtTokenProvider.accessTokenByrefreshToken(refreshToken, sub, "ROLE_"+auth);
+        if (newAccessTokenDto == null) {
+            log.info("재발급 실패");
+            throw new RuntimeException("Failed to refresh access token");
+        }
+        return newAccessTokenDto;
     }
 
     @Transactional
@@ -243,11 +256,8 @@ public class AuthService {
 
 
     @Transactional
-    public ResponseEntity<HttpStatus> logout(String email){
-        log.info("넘겨준느 이메일: "+email);
-        Member member = memberRepository.findByEmail(email).orElse(null);
-        log.info("찾았습니다~");
-        log.info(member.getRefreshToken());
+    public ResponseEntity<HttpStatus> logout(String refreshToken){
+        Member member = memberRepository.findByRefreshToken(refreshToken).orElse(null);
         member.setRefreshToken(null);
         log.info("null 세팅 완료");
         memberRepository.save(member);
