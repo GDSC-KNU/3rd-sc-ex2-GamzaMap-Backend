@@ -59,6 +59,7 @@ public class JwtTokenProvider {
     }
 
     public JwtTokenDto accessTokenByrefreshToken(String refreshToken, String sub, String auth) {
+        /*
         // refreshToken으로 accessToken 재발급
         Claims claims = parseClaims(refreshToken);
 
@@ -74,6 +75,12 @@ public class JwtTokenProvider {
         // refreshToken이 만료되었는지 확인
         if (expirationDate.before(now)) {
             log.info("refreshToken 만료~");
+            throw new RuntimeException("Refresh Token Expired");
+        }
+
+         */
+        if(!(refreshToken != null && validateToken(refreshToken))){
+            log.info("refreshToken 만료 or 유효x");
             throw new RuntimeException("Refresh Token Expired");
         }
 

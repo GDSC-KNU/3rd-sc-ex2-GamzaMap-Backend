@@ -4,6 +4,7 @@ import GDSC.gamzamap.Dto.BossDto;
 import GDSC.gamzamap.Dto.JoinDto;
 import GDSC.gamzamap.Dto.JwtTokenDto;
 import GDSC.gamzamap.Dto.MemberDto;
+import GDSC.gamzamap.Entity.Boss;
 import GDSC.gamzamap.Entity.Member;
 import GDSC.gamzamap.Jwt.JwtTokenProvider;
 import GDSC.gamzamap.Repository.BossRepository;
@@ -288,11 +289,13 @@ public class AuthService {
         String email = authentication.getName();
         Member member = memberRepository.findByEmail(email).orElse(null);
 
+        Boss boss = new Boss();
+        boss.setMember(member);
+        boss.setStoreName(bossDto.getStoreName());
+        boss.setStoreNum(bossDto.getStoreNum());
+        bossRepository.save(boss);
+        BossDto savedBossDto = bossDto.toDto(boss);
 
-        bossDto.setMemberId(member.getId());
-        log.info("멤버아이디: "+bossDto.getMemberId());
-
-
-        return BossDto.toDto(bossRepository.save(bossDto.toEntity()));
+        return savedBossDto;
     }
 }

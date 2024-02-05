@@ -16,6 +16,7 @@ public class ChatRoom {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "boss_id")
     private Boss boss;
 
     private String storeName;

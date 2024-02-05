@@ -19,6 +19,7 @@ public class Store {
     private ChatRoom chatRoom;
 
     @ManyToOne
+    @JoinColumn(name = "boss_id")
     private Boss boss;
 
     private String category;
