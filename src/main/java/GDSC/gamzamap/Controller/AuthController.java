@@ -4,7 +4,10 @@ import GDSC.gamzamap.Dto.*;
 import GDSC.gamzamap.Service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -53,6 +56,24 @@ public class AuthController {
         MemberDto savedMemberDto = authService.join(joinDto);
         log.info("회원가입 성공");
         return ResponseEntity.ok(savedMemberDto);
+    }
+
+    @PostMapping("/refresh")
+    public String accessTokenByRefreshToken(@RequestBody Map<String, String> requestBody) {
+        String refreshToken = requestBody.get("refreshToken");
+        JwtTokenDto newAccessTokenDto = authService.accessTokenByrefreshToken(refreshToken);
+        log.info("새로운 accessToken: "+newAccessTokenDto.getAccessToken());
+
+        return newAccessTokenDto.getAccessToken();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<HttpStatus> logout(@RequestBody Map<String, String> requestBody){
+        String refreshToken = requestBody.get("refreshToken");
+        authService.logout(refreshToken);
+        log.info("로그아웃 되었습니다.");
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/boss/join")

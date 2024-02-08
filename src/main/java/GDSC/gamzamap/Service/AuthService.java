@@ -12,7 +12,13 @@ import GDSC.gamzamap.Util.RandomNicknameGenerator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -38,6 +44,12 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final BossRepository bossRepository;
+
+    @Value("${kakao.restApiKey}")
+    private String RestApiKey;
+
+    @Value("${kakao.redirectURI}")
+    private String RedirectUri;
 
     public AuthService(MemberRepository memberRepository, AuthenticationManagerBuilder authenticationManagerBuilder, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, BossRepository bossRepository) {
         this.memberRepository = memberRepository;
@@ -84,11 +96,23 @@ public class AuthService {
     }
 
     @Transactional
+    public JwtTokenDto accessTokenByrefreshToken(String refreshToken) {
+        Member member = memberRepository.findByRefreshToken(refreshToken).orElse(null);
+        String sub = member.getEmail();
+        String auth = member.getRole();
+
+        JwtTokenDto newAccessTokenDto = jwtTokenProvider.accessTokenByrefreshToken(refreshToken, sub, "ROLE_"+auth);
+        if (newAccessTokenDto == null) {
+            log.info("재발급 실패");
+            throw new RuntimeException("Failed to refresh access token");
+        }
+        return newAccessTokenDto;
+    }
+
+    @Transactional
     public String getKakaoAccessToken(String code){
         String accessToken = "";
         String requestURL = "https://kauth.kakao.com/oauth/token";
-        String RestApiKey = "b8201d590e870a0295523da6db288aee";
-        String RedirectUri = "http://localhost:8080/auth/login/kakao";
 
         try {
             URL url = new URL(requestURL);
@@ -136,6 +160,7 @@ public class AuthService {
         return accessToken;
     }
 
+
     @Transactional
     public HashMap<String, Object> getUserInfo(String accessToken){
         HashMap<String, Object> userInfo = new HashMap<>();
@@ -175,6 +200,8 @@ public class AuthService {
         log.info("리턴~");
         return userInfo;
     }
+
+
     @Transactional
     public JwtTokenDto kakaologin(String email) {
         // email로 사용자 정보 조회
@@ -194,11 +221,13 @@ public class AuthService {
         return login(email);
     }
 
+
     //password 뒤 랜덤 숫자 생성
     private String generateRandomNum() {
         RandomNicknameGenerator nicknameGenerator = new RandomNicknameGenerator();
         return nicknameGenerator.generateRandomNum();
     }
+
 
     @Transactional
     public MemberDto join(JoinDto joinDto){
@@ -227,9 +256,21 @@ public class AuthService {
         return MemberDto.toDto(memberRepository.save(joinDto.toEntity()));
     }
 
+
     private String generateRandomNickname() {
         RandomNicknameGenerator nicknameGenerator = new RandomNicknameGenerator();
         return nicknameGenerator.generateRandomNickname();
+    }
+
+
+    @Transactional
+    public ResponseEntity<HttpStatus> logout(String refreshToken){
+        Member member = memberRepository.findByRefreshToken(refreshToken).orElse(null);
+        member.setRefreshToken(null);
+        log.info("null 세팅 완료");
+        memberRepository.save(member);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
