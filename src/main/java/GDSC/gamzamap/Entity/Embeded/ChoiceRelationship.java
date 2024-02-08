@@ -2,6 +2,7 @@ package GDSC.gamzamap.Entity.Embeded;
 
 import GDSC.gamzamap.Entity.ChatRoom;
 import GDSC.gamzamap.Entity.Member;
+import GDSC.gamzamap.Entity.Store;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.ManyToOne;
 import lombok.Builder;
@@ -19,12 +20,12 @@ public class ChoiceRelationship implements Serializable {
     private Member member;
 
     @ManyToOne
-    private ChatRoom chatRoom;
+    private Store store;
 
     @Builder
-    public ChoiceRelationship(Member member, ChatRoom chatRoom){
+    public ChoiceRelationship(Member member, Store store){
         this.member = member;
-        this.chatRoom = chatRoom;
+        this.store = store;
     }
 
     @Override
@@ -32,11 +33,11 @@ public class ChoiceRelationship implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChoiceRelationship that = (ChoiceRelationship) o;
-        return Objects.equals(member, that.member) && Objects.equals(chatRoom, that.chatRoom);
+        return Objects.equals(member, that.member) && Objects.equals(store, that.store);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(member, chatRoom);
+        return Objects.hash(member, store);
     }
 }

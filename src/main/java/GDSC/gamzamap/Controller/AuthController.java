@@ -79,7 +79,6 @@ public class AuthController {
     @PostMapping("/boss/join")
     public ResponseEntity<BossDto> bossjoin(@RequestBody BossDto bossDto){
         BossDto savedBossDto = authService.bossjoin(bossDto);
-        log.info("사장님 등록 성공");
         return ResponseEntity.ok(savedBossDto);
     }
 }
