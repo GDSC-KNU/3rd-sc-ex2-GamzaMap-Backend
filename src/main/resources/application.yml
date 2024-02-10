@@ -5,6 +5,17 @@ spring:
     username: gamza
     password: gamza@
 
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: false
+    freemarker:
+      cache: false
+    jackson:
+      serialization:
+        fail-on-empty-beans: false
+
   jpa:
     open-in-view: true
     hibernate:

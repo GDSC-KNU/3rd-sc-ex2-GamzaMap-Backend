@@ -13,9 +13,6 @@ import GDSC.gamzamap.Util.RandomNicknameGenerator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -97,17 +94,17 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtTokenDto accessTokenByrefreshToken(String refreshToken) {
+    public String accessTokenByrefreshToken(String refreshToken) {
         Member member = memberRepository.findByRefreshToken(refreshToken).orElse(null);
         String sub = member.getEmail();
         String auth = member.getRole();
 
-        JwtTokenDto newAccessTokenDto = jwtTokenProvider.accessTokenByrefreshToken(refreshToken, sub, "ROLE_"+auth);
-        if (newAccessTokenDto == null) {
+        String newAccessToken = jwtTokenProvider.accessTokenByrefreshToken(refreshToken, sub, "ROLE_"+auth);
+        if (newAccessToken == null) {
             log.info("재발급 실패");
             throw new RuntimeException("Failed to refresh access token");
         }
-        return newAccessTokenDto;
+        return newAccessToken;
     }
 
     @Transactional

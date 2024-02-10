@@ -8,6 +8,8 @@ import GDSC.gamzamap.Repository.ChatRoomRepository;
 import GDSC.gamzamap.Repository.ChoiceRepository;
 import GDSC.gamzamap.Repository.MemberRepository;
 import GDSC.gamzamap.Repository.StoreRepository;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
