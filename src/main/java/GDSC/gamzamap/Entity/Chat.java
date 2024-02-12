@@ -21,6 +21,7 @@ public class Chat {
     private Long id;
 
     @OneToOne
+    @JoinColumn(name = "chatroom_id")
     private ChatRoom chatRoom;
 
     @OneToOne
@@ -41,7 +42,17 @@ public class Chat {
         this.chatRoom = chatRoom;
         this.member = member;
         this.message = message;
-        this.sendData = sendDate;
+        this.sendData = LocalDateTime.now();
         this.type = type;
+    }
+
+    public static Chat createChat(ChatRoom chatRoom, Member member, String message, LocalDateTime sendDate, MessageType type) {
+        return Chat.builder()
+                .chatRoom(chatRoom)
+                .member(member)
+                .message(message)
+                .sendDate(sendDate)
+                .type(type)
+                .build();
     }
 }
