@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "찜 관련 API")
+@Tag(name = "메시지 관련 API")
 public class MessageController {
 
     private final MemberRepository memberRepository;
