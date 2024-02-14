@@ -6,13 +6,13 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
+import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "id")
-@Table
-
 public class Member {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, unique = true, nullable = false)
@@ -25,7 +25,7 @@ public class Member {
     private String password;
 
     @Email(message = "올바른 메일 형식 입력 바람")
-    @Pattern(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$")
+    @Pattern(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = "올바른 메일 형식 입력 바람")
     @NotEmpty
     private String email;
 
@@ -50,23 +50,19 @@ public class Member {
         return member;
     }
 
-    public boolean isAccountNonExpired(){
+    public boolean isAccountNonExpired() {
         return true;
     }
-
 
     public boolean isAccountNonLocked() {
         return true;
     }
 
-
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
-
     public boolean isEnabled() {
         return true;
     }
-
 }

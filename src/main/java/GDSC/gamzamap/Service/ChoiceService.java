@@ -4,7 +4,6 @@ import GDSC.gamzamap.Entity.Choice;
 import GDSC.gamzamap.Entity.Embeded.ChoiceRelationship;
 import GDSC.gamzamap.Entity.Member;
 import GDSC.gamzamap.Entity.Store;
-import GDSC.gamzamap.Repository.ChatRoomRepository;
 import GDSC.gamzamap.Repository.ChoiceRepository;
 import GDSC.gamzamap.Repository.MemberRepository;
 import GDSC.gamzamap.Repository.StoreRepository;

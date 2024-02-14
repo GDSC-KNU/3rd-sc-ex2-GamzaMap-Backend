@@ -22,14 +22,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
+    private static final String[] NOAUTHENTICATION_LIST ={
+            "/auth/login", "auth/general/join", "/auth/boss/join", "auth/login/kakao",
+            "/auth/logout", "/auth/refresh"
+    };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity.httpBasic().disable().csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/auth/login", "auth/general/join", "/auth/boss/join", "auth/login/kakao",
-                                            "/auth/logout", "/auth/refresh").permitAll()
+                        .requestMatchers(NOAUTHENTICATION_LIST).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new

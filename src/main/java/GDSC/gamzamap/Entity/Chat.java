@@ -7,41 +7,48 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
+import java.awt.*;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
 @NoArgsConstructor
 @Table
-
 public class Chat {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "message_id")
+    @Column(name = "chat_id")
     private Long id;
 
-    @OneToOne
-    private ChatRoom chatRoom;
+    @Column(name = "chatroom_id")
+    private Long roomId;
 
-    @OneToOne
-    private Member member;
+    @Column(name = "member_id")
+    private Long memberId;
+
+    private String nickName;
 
     @Column(columnDefinition = "TEXT")
     private String message;
 
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime sendData;
+    private LocalDateTime sendTime;
 
     @Enumerated(EnumType.STRING)
     private MessageType type;
 
+
     @Builder
-    public Chat(ChatRoom chatRoom, Member member, String message, LocalDateTime sendDate, MessageType type) {
-        this.chatRoom = chatRoom;
-        this.member = member;
+    public Chat(Long id, Long roomId, Long memberId, String nickName,String message, LocalDateTime sendTime, MessageType type) {
+        this.id = id;
+        this.roomId = roomId;
+        this.nickName=nickName;
+        this.memberId = memberId;
         this.message = message;
-        this.sendData = sendDate;
+        this.sendTime = sendTime;
         this.type = type;
     }
 }

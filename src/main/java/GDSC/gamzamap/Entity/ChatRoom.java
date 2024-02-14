@@ -5,26 +5,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Entity
 @NoArgsConstructor
 @Table
-
 public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "boss_id")
-    private Boss boss;
+    @Column(name = "boss_id")
+    private Long bossId;
 
-    private String storeName;
+    private String roomName;
+
+
 
     @Builder
-    public ChatRoom(Long id, Boss boss, String storeName) {
+    public ChatRoom(Long id, Long bossId, String roomName) {
         this.id = id;
-        this.boss = boss;
-        this.storeName = storeName;
+        this.bossId=bossId;
+        this.roomName = roomName;
     }
 }
