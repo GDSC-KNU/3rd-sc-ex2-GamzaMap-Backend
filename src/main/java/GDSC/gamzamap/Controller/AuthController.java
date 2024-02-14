@@ -29,6 +29,15 @@ public class AuthController {
 
     //Jwt 로그인
     @PostMapping("/login")
+    @Operation(summary = "로그인 API", description = "로그인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공",
+                    content = @Content(schema = @Schema(implementation = LoginDto.class))),
+            @ApiResponse(responseCode = "201", description = "회원가입 성공",
+                    content = @Content(schema = @Schema(implementation = LoginDto.class))),
+            @ApiResponse(responseCode = "500", description = "내부 서버 오류",
+                    content = @Content(schema = @Schema(implementation = HttpStatus.class)))
+    })
     public JwtTokenDto login(@RequestBody LoginDto loginDto){
         String email = loginDto.getEmail();
         String password = loginDto.getPassword();
@@ -42,6 +51,13 @@ public class AuthController {
 
     //Kakao 소셜 로그인
     @PostMapping("/login/kakao")
+    @Operation(summary = "Kakao 소셜 로그인 API", description = "Kakao 인증 코드를 이용하여 로그인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공",
+                    content = @Content(schema = @Schema(implementation = JwtTokenDto.class))),
+            @ApiResponse(responseCode = "500", description = "내부 서버 오류",
+                    content = @Content(schema = @Schema(implementation = HttpStatus.class)))
+    })
     public JwtTokenDto kakaoLogin(@RequestBody Map<String, String> requestBody){
         // 파싱하여 code 저장하기
         String code = requestBody.get("code");
@@ -58,6 +74,13 @@ public class AuthController {
     }
 
     @PostMapping("/general/join")
+    @Operation(summary = "일반 회원가입 API", description = "일반 회원가입")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원가입 성공",
+                    content = @Content(schema = @Schema(implementation = MemberDto.class))),
+            @ApiResponse(responseCode = "500", description = "내부 서버 오류",
+                    content = @Content(schema = @Schema(implementation = HttpStatus.class)))
+    })
     public ResponseEntity<MemberDto> join(@RequestBody JoinDto joinDto){
         MemberDto savedMemberDto = authService.join(joinDto);
         log.info("회원가입 성공");
@@ -65,6 +88,13 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @Operation(summary = "토큰 재발급 API", description = "Refresh Token을 이용하여 Access Token을 재발급")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "내부 서버 오류",
+                    content = @Content(schema = @Schema(implementation = HttpStatus.class)))
+    })
     public String accessTokenByRefreshToken(@RequestBody Map<String, String> requestBody) {
         String refreshToken = requestBody.get("refreshToken");
         JwtTokenDto newAccessTokenDto = authService.accessTokenByrefreshToken(refreshToken);
@@ -74,6 +104,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃 API", description = "Refresh Token을 이용하여 로그아웃")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공",
+                    content = @Content(schema = @Schema(implementation = HttpStatus.class))),
+            @ApiResponse(responseCode = "500", description = "내부 서버 오류",
+                    content = @Content(schema = @Schema(implementation = HttpStatus.class)))
+    })
     public ResponseEntity<HttpStatus> logout(@RequestBody Map<String, String> requestBody){
         String refreshToken = requestBody.get("refreshToken");
         authService.logout(refreshToken);
@@ -83,6 +120,13 @@ public class AuthController {
     }
 
     @PostMapping("/boss/join")
+    @Operation(summary = "사장님 회원가입 API", description = "사장님 회원가입")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원가입 성공",
+                    content = @Content(schema = @Schema(implementation = BossDto.class))),
+            @ApiResponse(responseCode = "500", description = "내부 서버 오류",
+                    content = @Content(schema = @Schema(implementation = HttpStatus.class)))
+    })
     public ResponseEntity<BossDto> bossjoin(@RequestBody BossDto bossDto){
         BossDto savedBossDto = authService.bossjoin(bossDto);
         return ResponseEntity.ok(savedBossDto);

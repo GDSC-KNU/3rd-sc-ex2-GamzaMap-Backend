@@ -5,6 +5,12 @@ import GDSC.gamzamap.Enum.MessageType;
 import GDSC.gamzamap.Entity.Member;
 import GDSC.gamzamap.Repository.ChatRepository;
 import GDSC.gamzamap.Repository.MemberRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -14,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "찜 관련 API")
 public class MessageController {
 
     private final MemberRepository memberRepository;
@@ -22,6 +29,11 @@ public class MessageController {
 
 
     @MessageMapping("/chat/message")
+    @Operation(summary = "채팅 메시지 전송", description = "채팅 메시지를 전송합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "전송 성공", content = @Content(schema = @Schema(implementation = ChatDto.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     public void enter(ChatDto message) {
         if (message.getType().equals(MessageType.ENTER)) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
