@@ -44,12 +44,13 @@ public class ChoiceController {
             @ApiResponse(responseCode = "200", description = "추가 성공"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<HttpStatus> addChoice(@PathVariable Long store_id){
+    public ResponseEntity<String> addChoice(@PathVariable Long store_id){
         log.info("가게아이디: "+store_id);
         choiceService.addChoice(store_id);
         log.info("추가 되었습니다.");
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        String message = store_id+" 등록 완료";
+        return ResponseEntity.ok().body(message);
     }
 
     @GetMapping("/{store_id}/delete")
@@ -58,10 +59,11 @@ public class ChoiceController {
             @ApiResponse(responseCode = "200", description = "삭제 성공"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<HttpStatus> deleteChoice(@PathVariable Long store_id){
+    public ResponseEntity<String> deleteChoice(@PathVariable Long store_id){
         choiceService.deleteChoice(store_id);
         log.info("삭제 되었습니다.");
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        String message = store_id+" 삭제 완료";
+        return ResponseEntity.ok().body(message);
     }
 }

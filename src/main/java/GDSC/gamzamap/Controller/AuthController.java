@@ -97,10 +97,10 @@ public class AuthController {
     })
     public String accessTokenByRefreshToken(@RequestBody Map<String, String> requestBody) {
         String refreshToken = requestBody.get("refreshToken");
-        JwtTokenDto newAccessTokenDto = authService.accessTokenByrefreshToken(refreshToken);
-        log.info("새로운 accessToken: "+newAccessTokenDto.getAccessToken());
+        String newAccessToken = authService.accessTokenByrefreshToken(refreshToken);
+        log.info("새로운 accessToken: "+newAccessToken);
 
-        return newAccessTokenDto.getAccessToken();
+        return newAccessToken;
     }
 
     @PostMapping("/logout")
@@ -111,12 +111,13 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "내부 서버 오류",
                     content = @Content(schema = @Schema(implementation = HttpStatus.class)))
     })
-    public ResponseEntity<HttpStatus> logout(@RequestBody Map<String, String> requestBody){
+    public ResponseEntity<String> logout(@RequestBody Map<String, String> requestBody){
         String refreshToken = requestBody.get("refreshToken");
         authService.logout(refreshToken);
         log.info("로그아웃 되었습니다.");
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        String message = "로그아웃 되었습니다.";
+        return ResponseEntity.ok().body(message);
     }
 
     @PostMapping("/boss/join")
