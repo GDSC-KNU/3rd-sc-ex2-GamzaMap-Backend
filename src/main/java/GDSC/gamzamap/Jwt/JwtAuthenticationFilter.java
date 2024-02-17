@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
         if ("/auth/general/join".equals(requestURI) ||"/auth/login".equals(requestURI)
                 || "/auth/login/kakao".equals(requestURI) || "/auth/refresh".equals(requestURI)
-                || "/auth/logout".equals(requestURI)
+                || "/auth/logout".equals(requestURI) || "/test".equals(requestURI)
                 || "/swagger-ui/**".equals(requestURI) ||"/v3/api-docs/**".equals(requestURI) ) {
             log.info("바로 통과하십쇼");
             chain.doFilter(request, response);
