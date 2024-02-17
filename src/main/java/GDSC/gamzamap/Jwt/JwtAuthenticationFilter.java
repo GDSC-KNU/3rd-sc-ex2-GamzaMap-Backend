@@ -34,8 +34,9 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             log.info("바로 통과하십쇼");
             chain.doFilter(request, response);
             return;
+        }
 
-        } else if (token != null && jwtTokenProvider.validateToken(token)) {
+        else if (token != null && jwtTokenProvider.validateToken(token)) {
             log.info("유효한 accessToken 입니다");
             // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
@@ -48,7 +49,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             httpResponse.getWriter().write("nono.. expired. plz refresh~");
             return;
         }
-
         chain.doFilter(request, response);
     }
 
