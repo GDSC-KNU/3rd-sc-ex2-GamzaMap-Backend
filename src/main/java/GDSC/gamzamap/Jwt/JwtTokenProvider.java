@@ -38,7 +38,7 @@ public class JwtTokenProvider {
                 .collect(Collectors.joining(","));
         long now = (new Date()).getTime();
 
-        Date accessTokenExpiresIn = new Date(now + 2*60*1000);
+        Date accessTokenExpiresIn = new Date(now + 10*60*1000);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -47,7 +47,7 @@ public class JwtTokenProvider {
                 .compact();
 
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 5*60*1000))
+                .setExpiration(new Date(now + 20*60*1000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -58,27 +58,7 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    public JwtTokenDto accessTokenByrefreshToken(String refreshToken, String sub, String auth) {
-        /*
-        // refreshToken으로 accessToken 재발급
-        Claims claims = parseClaims(refreshToken);
-
-        if (claims == null) {
-            log.info("유효하지 않은 리프레시토큰");
-            throw new RuntimeException("Invalid Refresh Token");
-        }
-
-        // refreshToken의 만료일시 확인
-        Date expirationDate = claims.getExpiration();
-        Date now = new Date();
-
-        // refreshToken이 만료되었는지 확인
-        if (expirationDate.before(now)) {
-            log.info("refreshToken 만료~");
-            throw new RuntimeException("Refresh Token Expired");
-        }
-
-         */
+    public String accessTokenByrefreshToken(String refreshToken, String sub, String auth) {
         if(!(refreshToken != null && validateToken(refreshToken))){
             log.info("refreshToken 만료 or 유효x");
             throw new RuntimeException("Refresh Token Expired");
@@ -87,18 +67,14 @@ public class JwtTokenProvider {
         // refreshToken이 유효하면 새로운 accessToken 발급
         String newAccessToken = generateAccessToken(sub, auth);
 
-        return JwtTokenDto.builder()
-                .grantType("Bearer")
-                .accessToken(newAccessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return newAccessToken;
     }
 
     private String generateAccessToken(String sub, String auth) {
         // 새로운 accessToken 발급받는 로직
         long now = (new Date()).getTime();
 
-        Date accessTokenExpiresIn = new Date(now + 2*60*1000);
+        Date accessTokenExpiresIn = new Date(now + 10*60*1000);
         return Jwts.builder()
                 .setSubject(sub)
                 .claim("auth", auth)  // 권한 정보를 설정

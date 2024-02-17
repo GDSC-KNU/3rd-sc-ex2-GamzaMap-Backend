@@ -97,17 +97,17 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtTokenDto accessTokenByrefreshToken(String refreshToken) {
+    public String accessTokenByrefreshToken(String refreshToken) {
         Member member = memberRepository.findByRefreshToken(refreshToken).orElse(null);
         String sub = member.getEmail();
         String auth = member.getRole();
 
-        JwtTokenDto newAccessTokenDto = jwtTokenProvider.accessTokenByrefreshToken(refreshToken, sub, "ROLE_"+auth);
-        if (newAccessTokenDto == null) {
+        String newAccessToken = jwtTokenProvider.accessTokenByrefreshToken(refreshToken, sub, "ROLE_"+auth);
+        if (newAccessToken == null) {
             log.info("재발급 실패");
             throw new RuntimeException("Failed to refresh access token");
         }
-        return newAccessTokenDto;
+        return newAccessToken;
     }
 
     @Transactional
