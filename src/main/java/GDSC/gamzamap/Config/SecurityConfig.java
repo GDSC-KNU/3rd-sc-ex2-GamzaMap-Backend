@@ -23,8 +23,8 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final String[] NOAUTHENTICATION_LIST ={
-            "/auth/login", "/auth/general/join", "/auth/boss/join", "/auth/login/kakao",
-            "/auth/logout", "/auth/refresh","/swagger-ui/**", "/test"
+            "/auth/login", "auth/general/join", "/auth/boss/join", "auth/login/kakao",
+            "/auth/logout", "/auth/refresh","/swagger-ui/**"
     };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
