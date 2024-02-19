@@ -24,7 +24,7 @@ public class SecurityConfig {
 
     private static final String[] NOAUTHENTICATION_LIST ={
             "/auth/login", "/auth/general/join", "/auth/boss/join", "/auth/login/kakao",
-            "/auth/logout", "/auth/refresh","/swagger-ui/**", "/test"
+            "/auth/logout", "/auth/refresh","/swagger-ui/**", "/test","/v3/api-docs/**"
     };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
