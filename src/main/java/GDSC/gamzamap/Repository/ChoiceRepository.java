@@ -10,5 +10,5 @@ import java.util.Optional;
 
 public interface ChoiceRepository extends JpaRepository<Choice, Long> {
     Optional<Choice> findByChoiceRelationshipMemberAndChoiceRelationshipStore(Member member, Store store);
-    List<Choice> findAllByChoiceRelationshipMemberId(Long memberId);
+    List<Choice> findAllByChoiceRelationshipMemberId(Long member_id);
 }

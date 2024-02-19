@@ -35,38 +35,40 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "500", description = "내부 서버 오류",
                     content = @Content(schema = @Schema(implementation = HttpStatus.class)))
     })
-    public List<Long> myChatRoomList(@PathVariable Long memberId) {
-        List<Long> myChatRooms=chattingService.chattingList(memberId);
+    public List<Long> myChatRoomList(@PathVariable Long member_id) {
+        List<Long> myChatRooms=chattingService.chattingList(member_id);
         return myChatRooms;
     }
 
     // 채팅방 입장했을때 뜨는 채팅창
     // 입장과 동시에 내가 참여중인 채팅방에 관계 추가됨
-    @GetMapping("/room/enter/{roomId}")
+    @GetMapping("/room/enter/{room_id}")
     @Operation(summary = "채팅방 입장 API", description = "채팅방에 입장하고 참여 중인 채팅방에 관계를 추가합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공적으로 채팅방에 입장했습니다."),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방입니다.")
     })
-    public ResponseEntity<HttpStatus> roomEnter(@PathVariable Long roomId) {
-        chattingService.addChatting(roomId);
+    public ResponseEntity<String> roomEnter(@PathVariable Long room_id) {
+        chattingService.addChatting(room_id);
         log.info("채팅방에 들어왔습니다.");
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        String message = room_id+"채팅방 나가기 완료";
+        return ResponseEntity.ok().body(message);
     }
 
     //채팅방 나갔을때
-    @GetMapping("/room/out/{roomId}")
+    @GetMapping("/room/out/{room_id}")
     @Operation(summary = "채팅방 나가기 API", description = "채팅방에서 나가고 참여 중인 채팅방 관계를 삭제합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공적으로 채팅방을 나갔습니다."),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방입니다.")
     })
-    public ResponseEntity<HttpStatus> deleteChatting(@PathVariable Long roomId){
-        chattingService.deleteChatting(roomId);
+    public ResponseEntity<String> deleteChatting(@PathVariable Long room_id){
+        chattingService.deleteChatting(room_id);
         log.info("채팅방을 나갔습니다.");
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        String message = room_id+"채팅방 나가기 완료";
+        return ResponseEntity.ok().body(message);
     }
 
 
