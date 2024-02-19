@@ -27,9 +27,9 @@ public class ChattingService {
     }
 
 
-    public List<Long> chattingList(Long memberId){
+    public List<Long> chattingList(Long member_id){
         // 내가참여중인 채팅방 목록 불러오기
-        List<Chatting> chattingList = chattingRepository.findAllByChattingRelationshipMemberId(memberId);
+        List<Chatting> chattingList = chattingRepository.findAllByChattingRelationshipMemberId(member_id);
 
         return chattingList.stream()
                 .map(choice -> choice.getChattingRelationship().getChatRoom().getId())
@@ -37,13 +37,13 @@ public class ChattingService {
     }
 
 
-    public ResponseEntity<HttpStatus> addChatting(Long roomId){
+    public ResponseEntity<HttpStatus> addChatting(Long room_id){
 
         // 내가 참여중인 채팅방 추가
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         Member member = memberRepository.findByEmail(email).orElse(null);
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
+        ChatRoom chatRoom = chatRoomRepository.findById(room_id).orElse(null);
 
         ChattingRelationship chattingRelationship = new ChattingRelationship(member, chatRoom);
         Chatting chatting=new Chatting();
@@ -53,13 +53,13 @@ public class ChattingService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<HttpStatus> deleteChatting(Long roomId){
+    public ResponseEntity<HttpStatus> deleteChatting(Long room_id){
 
         // 내가 참여중인 채팅방 나가기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         Member member = memberRepository.findByEmail(email).orElse(null);
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
+        ChatRoom chatRoom = chatRoomRepository.findById(room_id).orElse(null);
 
         Chatting chatting = chattingRepository.findByChattingRelationshipMemberAndChattingRelationshipChatRoom(member, chatRoom).orElse(null);
         if (chatting != null) {
