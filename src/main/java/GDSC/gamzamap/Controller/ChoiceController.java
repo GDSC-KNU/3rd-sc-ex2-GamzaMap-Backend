@@ -26,14 +26,14 @@ import java.util.List;
 public class ChoiceController {
     private final ChoiceService choiceService;
 
-    @GetMapping("/{member_id}")
+    @GetMapping("/myChoice")
     @Operation(summary = "선택 목록 조회", description = "특정 회원의 선택 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(type = "array", implementation = Long.class))),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public List<Long> choiceList(@PathVariable Long member_id){
-        List<Long> choiceList = choiceService.choiceList(member_id);
+    public List<Long> choiceList(){
+        List<Long> choiceList = choiceService.choiceList();
         return choiceList;
     }
 
