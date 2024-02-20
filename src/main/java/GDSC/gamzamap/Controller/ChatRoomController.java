@@ -27,7 +27,7 @@ public class ChatRoomController {
     private final ChattingService chattingService;
 
     // 내가 참여중인 채팅방 목록 반환
-    @GetMapping("/rooms/{member_id}")
+    @GetMapping("/rooms")
     @Operation(summary = "참여중인 채팅방 반환 API", description = "참여중인 채팅방")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
@@ -35,8 +35,8 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "500", description = "내부 서버 오류",
                     content = @Content(schema = @Schema(implementation = HttpStatus.class)))
     })
-    public List<Long> myChatRoomList(@PathVariable Long member_id) {
-        List<Long> myChatRooms=chattingService.chattingList(member_id);
+    public List<Long> myChatRoomList() {
+        List<Long> myChatRooms=chattingService.chattingList();
         return myChatRooms;
     }
 
@@ -52,7 +52,7 @@ public class ChatRoomController {
         chattingService.addChatting(room_id);
         log.info("채팅방에 들어왔습니다.");
 
-        String message = room_id+"채팅방 나가기 완료";
+        String message = room_id+"채팅방 입장 완료";
         return ResponseEntity.ok().body(message);
     }
 
