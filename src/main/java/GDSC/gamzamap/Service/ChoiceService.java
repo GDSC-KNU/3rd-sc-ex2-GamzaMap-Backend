@@ -32,9 +32,12 @@ public class ChoiceService {
     }
 
 
-    public List<Long> choiceList(Long member_id){
+    public List<Long> choiceList(){
         // 찜 목록 불러오기
-        List<Choice> choiceList = choiceRepository.findAllByChoiceRelationshipMemberId(member_id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Member member = memberRepository.findByEmail(email).orElse(null);
+        List<Choice> choiceList = choiceRepository.findAllByChoiceRelationshipMemberId(member.getId());
 
         return choiceList.stream()
                 .map(choice -> choice.getChoiceRelationship().getStore().getId())
