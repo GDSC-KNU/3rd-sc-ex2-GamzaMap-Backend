@@ -27,8 +27,12 @@ public class ChattingService {
     }
 
 
-    public List<Long> chattingList(Long member_id){
+    public List<Long> chattingList(){
         // 내가참여중인 채팅방 목록 불러오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Member member=memberRepository.findByEmail(email).orElse(null);
+        Long member_id=member.getId();
         List<Chatting> chattingList = chattingRepository.findAllByChattingRelationshipMemberId(member_id);
 
         return chattingList.stream()
