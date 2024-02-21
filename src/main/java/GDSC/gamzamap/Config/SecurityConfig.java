@@ -31,15 +31,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
-    private static final String[] NOAUTHENTICATION_LIST ={
+    private static final String[] NOAUTHENTICATION_LIST = {
             "/auth/login", "/auth/general/join", "/auth/boss/join", "/auth/login/kakao",
-            "/auth/logout", "/auth/refresh","/swagger-ui/**", "/test","/v3/api-docs/**"
+            "/auth/logout", "/auth/refresh", "/swagger-ui/**", "/test", "/v3/api-docs/**"
     };
 
 
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .httpBasic(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -59,14 +58,15 @@ public class SecurityConfig {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
-                    .allowedOrigins("http://34.47.70.134/", "http://43.201.78.118:8081") // 허용할 출처
+                    .allowedOrigins("http://34.47.70.134/", "http://43.201.78.118:8080") // 허용할 출처
                     .allowedMethods("GET", "POST") // 허용할 HTTP method
                     .allowCredentials(true) // 쿠키 인증 요청 허용
                     .maxAge(3000); // 원하는 시간만큼 pre-flight 리퀘스트를 캐싱
         }
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
     }
 }
