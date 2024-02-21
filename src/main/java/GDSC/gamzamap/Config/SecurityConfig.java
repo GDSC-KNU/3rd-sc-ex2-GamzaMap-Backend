@@ -30,19 +30,7 @@ public class SecurityConfig {
             "/auth/logout", "/auth/refresh","/swagger-ui/**", "/test","/v3/api-docs/**"
     };
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true); // json을 자바스크립트에서 처리할 수 있게 설정
-        config.addExposedHeader("accessToken"); // 노출할 헤더 설정
-        config.addExposedHeader("refreshToken"); // 노출할 헤더 설정
-        config.addAllowedOriginPattern("*"); // 모든 ip의 응답을 허용
-        config.addAllowedHeader("*"); // 모든 header의 응답을 허용
-        config.addAllowedMethod("*"); // 모든 post, put 등의 메서드에 응답을 허용
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);    // 모든 경로에 Cors설정
-        return source;
-    }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
@@ -55,6 +43,17 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(new
                         JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class).build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("*"); // 모든 Origin 허용
+        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
+        configuration.addAllowedHeader("*"); // 모든 헤더 허용
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
     @Bean
     public PasswordEncoder passwordEncoder(){
