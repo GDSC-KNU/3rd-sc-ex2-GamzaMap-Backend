@@ -14,7 +14,6 @@ spring:
 
 
 
-
 jwt:
   secret: 3a696b633a22fab4f16485961e65fd6bd91d7a708faa4bbca918afefed0818e0
 

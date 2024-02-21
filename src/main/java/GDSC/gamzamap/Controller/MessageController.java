@@ -16,11 +16,13 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "메시지 관련 API")
+@CrossOrigin(origins = "http://192.168.0.13:5173")
 public class MessageController {
 
     private final MemberRepository memberRepository;

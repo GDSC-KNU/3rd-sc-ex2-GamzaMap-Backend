@@ -22,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/chat")
 @Tag(name = "채팅방 관련 API")
+@CrossOrigin(origins = "http://192.168.0.13:5173")
 public class ChatRoomController {
 
     private final ChattingService chattingService;
