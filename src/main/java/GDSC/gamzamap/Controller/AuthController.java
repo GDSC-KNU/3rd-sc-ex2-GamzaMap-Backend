@@ -24,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 @Tag(name = "로그인 관련 API")
-@CrossOrigin(originPatterns = "http://43.200.176.80:8080")
+@CrossOrigin(originPatterns = "http://34.47.70.134/")
 public class AuthController {
     private final AuthService authService;
 
