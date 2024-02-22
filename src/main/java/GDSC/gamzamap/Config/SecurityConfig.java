@@ -2,6 +2,7 @@ package GDSC.gamzamap.Config;
 
 import GDSC.gamzamap.Jwt.JwtAuthenticationFilter;
 import GDSC.gamzamap.Jwt.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +21,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Collections;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -29,15 +35,47 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
-    private static final String[] NOAUTHENTICATION_LIST ={
+    private static final String[] NOAUTHENTICATION_LIST = {
             "/auth/login", "/auth/general/join", "/auth/boss/join", "/auth/login/kakao",
-            "/auth/logout", "/auth/refresh","/swagger-ui/**", "/test","/v3/api-docs/**"
+            "/auth/logout", "/auth/refresh", "/swagger-ui/**", "/test", "/v3/api-docs/**"
     };
 
 
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.httpBasic(withDefaults());
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+        httpSecurity.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource(){
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration config = new CorsConfiguration();
+
+                //config.setAllowedOrigins(Collections.singletonList("*"));
+                //config.addAllowedOriginPattern(null);
+                config.addAllowedOriginPattern("*");
+                //config.setAllowedOrigins(Collections.singletonList("null"));
+
+                config.setAllowedMethods(Collections.singletonList("*"));
+                config.setAllowCredentials(true);
+                config.setAllowedHeaders(Collections.singletonList("*"));
+                config.setMaxAge(3600L); //1시간
+                return config;
+            }
+        }));
+        httpSecurity.sessionManagement((sessionManagement) ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+                        .requestMatchers(NOAUTHENTICATION_LIST).permitAll()
+                        .anyRequest().authenticated());
+        httpSecurity.addFilterBefore(new
+                JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+
+        return httpSecurity.build();
+
+
+
+
+        /*
         return httpSecurity
                 .httpBasic(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -50,20 +88,15 @@ public class SecurityConfig {
                 .addFilterBefore(new
                         JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
+
+         */
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*"); // 모든 Origin 허용
-        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
-        configuration.addAllowedHeader("*"); // 모든 헤더 허용
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+
+
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
 }
+
