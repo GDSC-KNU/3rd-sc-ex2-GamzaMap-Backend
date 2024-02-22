@@ -2,6 +2,7 @@ package GDSC.gamzamap.Config;
 
 import GDSC.gamzamap.Jwt.JwtAuthenticationFilter;
 import GDSC.gamzamap.Jwt.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,6 +23,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Collections;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -39,6 +43,35 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.httpBasic(withDefaults());
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+        httpSecurity.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource(){
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(Collections.singletonList("http://34.47.70.134"));
+                config.setAllowedOrigins(Collections.singletonList("null"));
+                config.setAllowedMethods(Collections.singletonList("*"));
+                config.setAllowCredentials(true);
+                config.setAllowedHeaders(Collections.singletonList("*"));
+                config.setMaxAge(3600L); //1시간
+                return config;
+            }
+        }));
+        httpSecurity.sessionManagement((sessionManagement) ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+                        .requestMatchers(NOAUTHENTICATION_LIST).permitAll()
+                        .anyRequest().authenticated());
+        httpSecurity.addFilterBefore(new
+                JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+
+        return httpSecurity.build();
+
+
+
+
+        /*
         return httpSecurity
                 .httpBasic(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -51,22 +84,15 @@ public class SecurityConfig {
                 .addFilterBefore(new
                         JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
+
+         */
     }
 
-    @Configuration
-    public class WebConfig implements WebMvcConfigurer {
-        @Override
-        public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/**")
-                    .allowedOrigins("http://34.47.70.134/", "http://3.35.233.247:8080") // 허용할 출처
-                    .allowedMethods("GET", "POST") // 허용할 HTTP method
-                    .allowCredentials(true) // 쿠키 인증 요청 허용
-                    .maxAge(3000); // 원하는 시간만큼 pre-flight 리퀘스트를 캐싱
-        }
+
 
         @Bean
         public PasswordEncoder passwordEncoder() {
             return new BCryptPasswordEncoder();
         }
-    }
 }
+
